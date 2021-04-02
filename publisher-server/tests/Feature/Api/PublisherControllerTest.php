@@ -7,30 +7,28 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Faker\Factory;
 
-class SubcriptionControllerTest extends TestCase
+class PublisherControllerTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
         $this->withoutExceptionHandling();
     }
+
     /**
-     * Test that you can create a subscription.
+     * Test that you can create a puslish a message.
      *
      * @return void
      */
-    public function test_can_create_a_subscription()
+    public function test_can_publish_message()
     {
-
         $faker = Factory::create();
-        $response = $this->json('POST','/api/subscribe/topic', [
-            
-            'url' => 'https://thelastcodebender.com',
+        $response = $this->json('POST','/api/publish/topic', [
             'topic' => $faker->word
 
         ]);
         $response->assertJsonStructure([
-            'url','topic',
+            'message','data',
         ])->assertStatus(201);
 
     }
