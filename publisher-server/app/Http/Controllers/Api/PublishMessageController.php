@@ -18,47 +18,51 @@ class PublishMessageController extends Controller
      */
     public function publish(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            '*'   => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => $validator->errors()
-            ], 422);
-        }
-
-        $subscribers = Subscriber::where('topic', $request->topic)->get();
-        $payload = '';
-        if ($subscribers) {
-            foreach ($subscribers as $subscriber) {
-                $payload = [
-                    "topic" => $request->topic, "data"  => $request->all()
-                ];
-                $this->httpPost($subscriber->url,$payload);
+        try {
+            $validator = Validator::make($request->all(), [
+                '*'   => 'required'
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => $validator->errors()
+                ], 422);
             }
-            
-            $payload = [
-                'message'   =>  'Message send to '.count($subscribers).' Subscribers',
-                "data" => $request->all()
-            ];
-
-            $publish = new Publisher();
-            $publish->topic =  $request->topic;
-            $publish->object =  json_encode($payload);
-            $publish->isPublished =  true;
-            $publish->isDelivered =  true;
-            $publish->save();
-
-        }else{
-
-            $payload = [
-                'message'   => count($subscribers) .' Subscribers were notified'.$request->topic
-            ];
+    
+            $subscribers = Subscriber::where('topic', $request->topic)->get();
+            $payload = '';
+            if ($subscribers) {
+                foreach ($subscribers as $subscriber) {
+                    $payload = [
+                        "topic" => $request->topic, "data"  => $request->all()
+                    ];
+                    $this->httpPost($subscriber->url,$payload);
+                }
+                
+                $payload = [
+                    'message'   =>  'Message send to '.count($subscribers).' Subscribers',
+                    "data" => $request->all()
+                ];
+    
+                $publish = new Publisher();
+                $publish->topic =  $request->topic;
+                $publish->object =  json_encode($payload);
+                $publish->isPublished =  true;
+                $publish->isDelivered =  true;
+                $publish->save();
+    
+            }else{
+    
+                $payload = [
+                    'message'   => count($subscribers) .' Subscribers were notified'.$request->topic
+                ];
+            }
+    
+            return response()->json($payload, 201);
+        } catch (\JsonException $e) {
+            return response()->json([], 400);
         }
-
-        return response()->json($payload, 201);
     }
 
 public function httpPost($url, $data){
