@@ -16,7 +16,7 @@ class Publisher extends Migration
         Schema::create('publishers', function (Blueprint $table) {
             $table->id();
             $table->string('topic');
-            $table->string('object');
+            $table->text('object');
             $table->boolean('isPublished');
             $table->boolean('isDelivered');
             $table->timestamps();
