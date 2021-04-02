@@ -21,3 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Api'], function () {
     Route::post('/subscribe/{topic}', 'SubscriptionController@subscribe');
 });
+
+Route::group(['namespace' => 'Api'], function () {
+    Route::post('/publish/{topic}', 'PublishMessageController@publish');
+});
