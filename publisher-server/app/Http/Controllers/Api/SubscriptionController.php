@@ -19,25 +19,30 @@ class SubscriptionController extends Controller
     public function subscribe(Request $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'url'   => 'required|url|max:250'
-        ]);
+       try {
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => $validator->errors()
-            ], 422);
+            $validator = Validator::make($request->all(), [
+                'url'   => 'required|url|max:250'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => $validator->errors()
+                ], 422);
+            }
+
+            Subscriber::create($request->all());
+            $data = [
+                'url'   => $request->url,
+                'topic' => $request->topic
+            ];
+
+            return response()->json($data, 201);
+            
+        } catch (\JsonException $e) {
+            return response()->json([], 400);
         }
-
-        Subscriber::create($request->all());
-        $data = [
-            'url'   => $request->url,
-            'topic' => $request->topic
-        ];
-
-        return response()->json($data, 201);
-        
     
     }
 
